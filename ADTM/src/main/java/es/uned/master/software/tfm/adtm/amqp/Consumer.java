@@ -32,8 +32,10 @@ public class Consumer {
 			if (transactionData!=null){
 				Transaction transaction = new Transaction(transactionData);
 				if (transaction.getStatus().equals(TransactionStatus.RECEIVED_OK)){
+					log.info("La transaccion {} ha terminado correctamente, hacemos el commit", transaction.getTransactionReference());
 					transaction.getExecutor().commit();
 				} else { // Cualquier otro estado, preferiblemente RECEIVED_NOK
+					log.info("La transaccion {} no ha terminado correctamente, hacemos el rollback", transaction.getTransactionReference());
 					transaction.getExecutor().rollback();
 				}
 			}
