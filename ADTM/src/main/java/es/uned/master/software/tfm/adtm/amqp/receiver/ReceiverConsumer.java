@@ -27,9 +27,11 @@ public abstract class ReceiverConsumer<T> {
 			try {
 				processRequest((T)transaction.getObjectTransmited());
 				log.info("La respuesta se ha procesado correctamente");
+				transaction.setStatus(TransactionStatus.RECEIVED_OK);
 			} catch (Exception ex){
 				log.info("La respuesta NO se ha procesado correctamente");
 				transaction.setStatus(TransactionStatus.RECEIVED_NOK);
+				transaction.setAdditionalInfo(ex.getMessage());
 			}
 			log.info("Procedemos a comunicarselo al emisor a traves de la cola {}", transaction.getResponseQueueName());
 			String replyMessage = mapper.writeValueAsString(transaction);
