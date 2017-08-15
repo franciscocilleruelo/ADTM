@@ -6,16 +6,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.uned.master.software.tfm.adtm.amqp.Producer;
-import es.uned.master.software.tfm.adtm.entity.Transaction;
+import es.uned.master.software.tfm.adtm.amqp.receiver.ReceiverConsumer;
+import es.uned.master.software.tfm.adtm.amqp.util.AmpqUtil;
 import es.uned.master.software.tfm.adtm.entity.TransactionElement;
 import es.uned.master.software.tfm.adtm.entity.TransactionStatus;
 import es.uned.master.software.tfm.adtm.exception.SendingException;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.jpa.repository.TransactionDataRepository;
+import es.uned.master.software.tfm.adtm.task.ResponseCheckerTask;
 
 @Service
 @Transactional
@@ -27,7 +30,13 @@ public class TransactionDataService {
 	private TransactionDataRepository transactionDataRepository;
 	
 	@Autowired
+	private ThreadPoolTaskScheduler taskScheduler;
+	
+	@Autowired
 	private Producer producer;
+	
+	@Autowired
+	private AmpqUtil ampqUtil;
 	
 	public TransactionData transactionResponseNotReceived(TransactionData transactionData){
 		log.info("Indicamos que la transacción {} no ha recibido respuesta", transactionData.getTransactionDataId());
@@ -52,7 +61,7 @@ public class TransactionDataService {
 		return transactionDataRepository.findOne(transactionId);
 	}
 	
-	public void sentTransaction(TransactionData transactionData) throws SendingException{
+	public void sendTransaction(TransactionData transactionData) throws SendingException{
 		try {
 			log.info("Se procede a enviar la transacción {} a su cola de envio {}", transactionData.getTransactionDataId(), 
 					transactionData.getRequestQueueName());
@@ -64,6 +73,15 @@ public class TransactionDataService {
 			transactionData.setStatus(TransactionStatus.SENT.toString());
 			log.info("Se guarda la transacción {} como enviada", transactionData.getTransactionDataId());
 			transactionDataRepository.save(transactionData);
+			if (transactionData.getMaxResponseTime()>0){ // Se ha establecido un tiempo máximo para recibir la respuesta
+				log.info("Se ha establecido un tiempo maximo de respuesta de {} msg", transactionData.getMaxResponseTime());
+				ResponseCheckerTask checkerTask = new ResponseCheckerTask(this, transactionData);
+				log.info("Lanzamos el hilo de ejecución para comprobar si se ha recibido la respuesta para la transaccion {} en un tiempo maximo de {} msg",
+						transactionData.getTransactionDataId(), transactionData.getMaxResponseTime());
+				taskScheduler.execute(checkerTask, transactionData.getMaxResponseTime());
+			}
+			String responseQueueName = transactionData.getResponseQueueName();
+			ampqUtil.createRabbitListenerForSender(responseQueueName);		
 		} catch (Exception ex){
 			log.error("Ha habido un error en el envio de la transacción {} a su cola de envio {}", transactionData.getTransactionDataId(), 
 					transactionData.getRequestQueueName());
@@ -75,7 +93,15 @@ public class TransactionDataService {
 			transactionDataRepository.save(transactionData);
 			throw new SendingException();
 		}
-		
+	}
+	
+	public void receiveTransactionReponse(String responseQueueName, ReceiverConsumer receiverConsumer){
+		try {
+			log.info("Se procede a crear el listener correspondiente para la cola {} donde se espera recibir una transaccion", responseQueueName);
+			ampqUtil.createRabbitListenerForReceiver(responseQueueName, receiverConsumer);
+		} catch (Exception ex){
+			log.error("Error al crear el listener para la cola {} donde se espera recibir la respuesta de una transaccion", responseQueueName);
+		}
 	}
 
 }

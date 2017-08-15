@@ -12,6 +12,7 @@ public class TransactionElement implements Serializable {
 	private String additionalInfo;
 	private Object objectTransmited;
 	private TransactionStatus status;
+	private String responseQueueName;
 	
 	private TransactionElement() {
 		super();
@@ -23,6 +24,7 @@ public class TransactionElement implements Serializable {
 		this.additionalInfo = transactionData.getAdditionalInfo();
 		this.objectTransmited = transactionData.getObjectTransmited();
 		this.status = TransactionStatus.valueOf(transactionData.getStatus());
+		this.setResponseQueueName(transactionData.getResponseQueueName());
 	}
 
 	public TransactionElement(Long transactionReference, String additionalInfo, Object objectTransmited,
@@ -64,6 +66,14 @@ public class TransactionElement implements Serializable {
 
 	public void setStatus(TransactionStatus status) {
 		this.status = status;
+	}
+
+	public String getResponseQueueName() {
+		return responseQueueName;
+	}
+
+	public void setResponseQueueName(String responseQueueName) {
+		this.responseQueueName = responseQueueName;
 	}
 
 }

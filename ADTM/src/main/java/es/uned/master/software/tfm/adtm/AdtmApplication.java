@@ -9,4 +9,5 @@ public class AdtmApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AdtmApplication.class, args);
 	}
+	
 }

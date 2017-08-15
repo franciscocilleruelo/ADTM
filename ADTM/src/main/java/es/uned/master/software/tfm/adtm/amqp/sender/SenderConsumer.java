@@ -1,8 +1,7 @@
-package es.uned.master.software.tfm.adtm.amqp;
+package es.uned.master.software.tfm.adtm.amqp.sender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +14,13 @@ import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.service.TransactionDataService;
 
 @Component
-public class Consumer {
+public class SenderConsumer {
 	
-	private static final Logger log = LoggerFactory.getLogger(Consumer.class);
+	private static final Logger log = LoggerFactory.getLogger(SenderConsumer.class);
 	
 	@Autowired
 	private TransactionDataService transactionDataService;
 	
-	@RabbitListener(queues="${queue.orders.name}")
 	public void handleMessage(String message){
 		log.info("Recibido mensaje {}", message);
 		ObjectMapper mapper = new ObjectMapper();
@@ -42,6 +40,5 @@ public class Consumer {
 		} catch (Exception ex){
 			log.error("Error en la conversión del mensaje JSON {}", message);
 		}
-		
 	}
 }
