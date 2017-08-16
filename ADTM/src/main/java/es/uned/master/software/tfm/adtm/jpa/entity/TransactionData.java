@@ -33,7 +33,7 @@ public class TransactionData implements Serializable{
 	private String requestQueueName;
 	private String responseQueueName;
 	private int sentTries;
-	private Long maxResponseTime;
+	private int maxResponseTime;
 	
 	public TransactionData() {
 		super();
@@ -145,11 +145,11 @@ public class TransactionData implements Serializable{
 		this.sentTries = sentTries;
 	}
 
-	public Long getMaxResponseTime() {
+	public int getMaxResponseTime() {
 		return maxResponseTime;
 	}
 
-	public void setMaxResponseTime(Long maxResponseTime) {
+	public void setMaxResponseTime(int maxResponseTime) {
 		this.maxResponseTime = maxResponseTime;
 	}
 	

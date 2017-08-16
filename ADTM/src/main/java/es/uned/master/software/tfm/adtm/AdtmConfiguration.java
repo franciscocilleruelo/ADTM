@@ -6,10 +6,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import es.uned.master.software.tfm.adtm.manager.TransactionManager;
+
 @Configuration
 @EnableAsync
 @EnableScheduling
-public class SchedulingConfiguration {
+public class AdtmConfiguration {
 
 	@Bean
 	public ThreadPoolTaskScheduler taskEcheduler(){
@@ -17,6 +19,11 @@ public class SchedulingConfiguration {
 		taskScheduler.setThreadNamePrefix("ADTM_ScheduledTasks-");
 		taskScheduler.setPoolSize(60);
 		return taskScheduler;
+	}
+	
+	@Bean
+	public TransactionManager getTransactionManager(){
+		return new TransactionManager();
 	}
 	
 }

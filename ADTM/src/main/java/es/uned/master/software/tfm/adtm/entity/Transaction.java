@@ -6,17 +6,17 @@ import org.springframework.util.SerializationUtils;
 
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 
-public class Transaction implements Serializable {
+public class Transaction<T> implements Serializable {
 
 	private static final long serialVersionUID = 6768349709404274424L;
 	
 	private Long transactionReference;
 	private String additionalInfo;
-	private Object objectTransmited;
+	private T objectTransmited;
 	private TransactionExecutor executor;
 	private String requestQueueName;
 	private String responseQueueName;
-	private Long maxResponseTime;
+	private int maxResponseTime;
 	private TransactionStatus status;
 	
 	private Transaction() {
@@ -29,20 +29,19 @@ public class Transaction implements Serializable {
 		this.additionalInfo = transactionData.getAdditionalInfo();
 		this.requestQueueName = transactionData.getRequestQueueName();
 		this.responseQueueName = transactionData.getResponseQueueName();
-		this.objectTransmited = SerializationUtils.deserialize(transactionData.getObjectTransmited());
+		this.objectTransmited = (T)SerializationUtils.deserialize(transactionData.getObjectTransmited());
 		this.executor = (TransactionExecutor)SerializationUtils.deserialize(transactionData.getExecutor());
 		this.status = TransactionStatus.valueOf(transactionData.getStatus());
 	}
 
-	public Transaction(Object objectTransmited, TransactionExecutor executor, String requestQueueName, String responseQueueName,
-			Long maxResponseTime, TransactionStatus status) {
+	public Transaction(T objectTransmited, TransactionExecutor executor, String requestQueueName, String responseQueueName,
+			int maxResponseTime) {
 		super();
 		this.objectTransmited = objectTransmited;
 		this.executor = executor;
 		this.requestQueueName = requestQueueName;
 		this.responseQueueName = responseQueueName;
 		this.maxResponseTime = maxResponseTime;
-		this.status = status;
 	}
 
 	public Long getTransactionReference() {
@@ -61,11 +60,11 @@ public class Transaction implements Serializable {
 		this.additionalInfo = additionalInfo;
 	}
 
-	public Object getObjectTransmited() {
+	public T getObjectTransmited() {
 		return objectTransmited;
 	}
 
-	public void setObjectTransmited(Object objectTransmited) {
+	public void setObjectTransmited(T objectTransmited) {
 		this.objectTransmited = objectTransmited;
 	}
 
@@ -93,11 +92,11 @@ public class Transaction implements Serializable {
 		this.responseQueueName = responseQueueName;
 	}
 
-	public Long getMaxResponseTime() {
+	public int getMaxResponseTime() {
 		return maxResponseTime;
 	}
 
-	public void setMaxResponseTime(Long maxResponseTime) {
+	public void setMaxResponseTime(int maxResponseTime) {
 		this.maxResponseTime = maxResponseTime;
 	}
 
