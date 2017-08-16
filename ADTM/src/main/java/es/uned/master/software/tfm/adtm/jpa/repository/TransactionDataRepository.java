@@ -11,7 +11,7 @@ import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 @Repository
 public interface TransactionDataRepository extends JpaRepository<TransactionData, Long> {
 	
-	@Query("SELECT * FROM TRANSACTIONS_DATA WHERE sentDate IS NULL and responseCheckedDate IS NULL")
+	@Query("SELECT TD FROM TransactionData TD WHERE sentDate IS NULL and responseCheckedDate IS NULL")
 	public List<TransactionData> getTransactionToBeSent();
 
 }

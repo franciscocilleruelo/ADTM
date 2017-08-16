@@ -25,9 +25,14 @@ public abstract class ReceiverConsumer<T> {
 			ObjectMapper mapper = new ObjectMapper();
 			TransactionElement transaction = mapper.readValue(message, TransactionElement.class);
 			try {
-				processRequest((T)transaction.getObjectTransmited());
-				log.info("La respuesta se ha procesado correctamente");
-				transaction.setStatus(TransactionStatus.RECEIVED_OK);
+				boolean resultado = processRequest((T)transaction.getObjectTransmited());
+				if (resultado){
+					log.info("La respuesta se ha procesado correctamente");
+					transaction.setStatus(TransactionStatus.RECEIVED_OK);
+				} else {
+					log.info("La respuesta NO se ha procesado correctamente");
+					transaction.setStatus(TransactionStatus.RECEIVED_NOK);
+				}
 			} catch (Exception ex){
 				log.info("La respuesta NO se ha procesado correctamente");
 				transaction.setStatus(TransactionStatus.RECEIVED_NOK);
@@ -41,5 +46,5 @@ public abstract class ReceiverConsumer<T> {
 		}		
 	}
 	
-	public abstract void processRequest(T requestObject);
+	public abstract boolean processRequest(T requestObject);
 }
