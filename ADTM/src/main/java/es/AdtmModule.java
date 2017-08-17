@@ -1,33 +1,31 @@
-package es.uned.master.software.tfm.adtm;
+package es;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import es.uned.master.software.tfm.adtm.entity.TransactionExecutorStore;
+import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
+
 @Configuration
 @EnableAsync
 @EnableScheduling
-@SpringBootApplication
+@ComponentScan(basePackages={"es"})
+@EnableJpaRepositories(basePackages={"es"})
+@EntityScan(basePackages={"es"})
 public class AdtmModule {
-	
-	private static final Logger log = LoggerFactory.getLogger(AdtmModule.class);
-	
-	public static void main(String[] args) {
-		log.info("Arrancado ADTM");
-		SpringApplication.run(AdtmModule.class, args);
-	}
 
 	@Bean
-	public ThreadPoolTaskScheduler taskEcheduler(){
+	public ThreadPoolTaskScheduler taskScheduler(){
 		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 		taskScheduler.setThreadNamePrefix("ADTM_ScheduledTasks-");
 		taskScheduler.setPoolSize(60);
@@ -40,6 +38,16 @@ public class AdtmModule {
 	@Bean
 	public RabbitAdmin getRabbitAdmin(){
 		return new RabbitAdmin(connectionFactory);
+	}
+	
+	@Bean
+	public DistributedTransactionManager distributedTransactionManager(){
+		return new DistributedTransactionManager();
+	}
+	
+	@Bean
+	public TransactionExecutorStore buildTransactionExecutorMap(){
+		return new TransactionExecutorStore();
 	}
 	
 	

@@ -30,7 +30,6 @@ public class Transaction<T> implements Serializable {
 		this.requestQueueName = transactionData.getRequestQueueName();
 		this.responseQueueName = transactionData.getResponseQueueName();
 		this.objectTransmited = (T)SerializationUtils.deserialize(transactionData.getObjectTransmited());
-		this.executor = (TransactionExecutor)SerializationUtils.deserialize(transactionData.getExecutor());
 		this.status = TransactionStatus.valueOf(transactionData.getStatus());
 	}
 

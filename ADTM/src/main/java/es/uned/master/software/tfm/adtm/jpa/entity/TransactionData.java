@@ -7,11 +7,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.springframework.util.SerializationUtils;
 
 import es.uned.master.software.tfm.adtm.entity.Transaction;
+import es.uned.master.software.tfm.adtm.entity.TransactionExecutor;
 
 @Entity
 @Table(name = "TRANSACTIONS_DATA")
@@ -22,8 +25,8 @@ public class TransactionData implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long transactionDataId;
-	private byte[] objectTransmited;
-	private byte[] executor;
+	@Lob
+	private byte[] objectTransmited;	
 	private Date startDate;
 	private Date sentDate;
 	private Date receivedDate;
@@ -35,6 +38,9 @@ public class TransactionData implements Serializable{
 	private int sentTries;
 	private int maxResponseTime;
 	
+	@Transient
+	private TransactionExecutor executor;
+	
 	public TransactionData() {
 		super();
 	}
@@ -43,7 +49,7 @@ public class TransactionData implements Serializable{
 		super();
 		this.additionalInfo = transaction.getAdditionalInfo();
 		this.objectTransmited = SerializationUtils.serialize(transaction.getObjectTransmited());
-		this.executor = SerializationUtils.serialize(transaction.getExecutor());
+		this.executor = transaction.getExecutor();
 		this.requestQueueName = transaction.getRequestQueueName();
 		this.responseQueueName = transaction.getResponseQueueName();
 		this.maxResponseTime = transaction.getMaxResponseTime();
@@ -65,11 +71,11 @@ public class TransactionData implements Serializable{
 		this.objectTransmited = objectTransmited;
 	}
 
-	public byte[] getExecutor() {
+	public TransactionExecutor getExecutor() {
 		return executor;
 	}
 
-	public void setExecutor(byte[] executor) {
+	public void setExecutor(TransactionExecutor executor) {
 		this.executor = executor;
 	}
 

@@ -9,7 +9,7 @@ import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.service.TransactionDataService;
 
 @Component
-public class TransactionManager {
+public class DistributedTransactionManager {
 	
 	@Autowired
 	private TransactionDataService transactionDataService;

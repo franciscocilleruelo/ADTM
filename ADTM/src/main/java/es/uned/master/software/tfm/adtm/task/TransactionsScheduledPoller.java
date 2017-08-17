@@ -20,7 +20,7 @@ public class TransactionsScheduledPoller {
 	@Autowired
 	private TransactionDataService transactionDataService;
 	
-	@Scheduled(fixedDelay=300000)
+	@Scheduled(fixedDelay=60000)
 	public void run(){
 		List<TransactionData> transactionDataList = transactionDataService.getTransactionsToBeSent();
 		if (transactionDataList!=null && !transactionDataList.isEmpty()){

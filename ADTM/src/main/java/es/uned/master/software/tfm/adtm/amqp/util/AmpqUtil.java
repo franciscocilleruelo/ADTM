@@ -48,7 +48,7 @@ public class AmpqUtil {
 	private void createRabbitListener(String responseQueueName, Object consumer){
 		log.info("No se ha creado un listener para la cola {} donde se espera recibir la respuesta", responseQueueName);
 		log.info("Creamos la cola {}", responseQueueName);
-		Queue queue = new Queue(responseQueueName);
+		Queue queue = new Queue(responseQueueName, false, false, false);
 		rabbitAdmin.declareQueue(queue);
 		log.info("Procedemos a crear el listener para la cola {} recien creada");
 		MessageListenerAdapter adapter = new MessageListenerAdapter(consumer);
@@ -58,6 +58,5 @@ public class AmpqUtil {
 		log.info("Arrancamos el listener para la cola {}", responseQueueName);
 		container.start();
 	}
-	
 
 }
