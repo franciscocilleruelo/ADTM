@@ -11,10 +11,8 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.springframework.util.SerializationUtils;
-
+import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.entity.Transaction;
-import es.uned.master.software.tfm.adtm.entity.TransactionExecutor;
 
 @Entity
 @Table(name = "TRANSACTIONS_DATA")
@@ -26,7 +24,7 @@ public class TransactionData implements Serializable{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long transactionDataId;
 	@Lob
-	private byte[] objectTransmited;	
+	private Serializable objectTransmited;	
 	private Date startDate;
 	private Date sentDate;
 	private Date receivedDate;
@@ -37,9 +35,8 @@ public class TransactionData implements Serializable{
 	private String responseQueueName;
 	private int sentTries;
 	private int maxResponseTime;
-	
 	@Transient
-	private TransactionExecutor executor;
+	private SenderConsumer senderConsumer;
 	
 	public TransactionData() {
 		super();
@@ -48,8 +45,8 @@ public class TransactionData implements Serializable{
 	public TransactionData(Transaction transaction) {
 		super();
 		this.additionalInfo = transaction.getAdditionalInfo();
-		this.objectTransmited = SerializationUtils.serialize(transaction.getObjectTransmited());
-		this.executor = transaction.getExecutor();
+		this.objectTransmited = transaction.getObjectTransmited();
+		this.senderConsumer = transaction.getSenderConsumer();
 		this.requestQueueName = transaction.getRequestQueueName();
 		this.responseQueueName = transaction.getResponseQueueName();
 		this.maxResponseTime = transaction.getMaxResponseTime();
@@ -63,20 +60,12 @@ public class TransactionData implements Serializable{
 		this.transactionDataId = transactionDataId;
 	}
 
-	public byte[] getObjectTransmited() {
+	public Serializable getObjectTransmited() {
 		return objectTransmited;
 	}
 
-	public void setObjectTransmited(byte[] objectTransmited) {
+	public void setObjectTransmited(Serializable objectTransmited) {
 		this.objectTransmited = objectTransmited;
-	}
-
-	public TransactionExecutor getExecutor() {
-		return executor;
-	}
-
-	public void setExecutor(TransactionExecutor executor) {
-		this.executor = executor;
 	}
 
 	public String getAdditionalInfo() {
@@ -157,6 +146,14 @@ public class TransactionData implements Serializable{
 
 	public void setMaxResponseTime(int maxResponseTime) {
 		this.maxResponseTime = maxResponseTime;
+	}
+
+	public SenderConsumer getSenderConsumer() {
+		return senderConsumer;
+	}
+
+	public void setSenderConsumer(SenderConsumer senderConsumer) {
+		this.senderConsumer = senderConsumer;
 	}
 	
 }

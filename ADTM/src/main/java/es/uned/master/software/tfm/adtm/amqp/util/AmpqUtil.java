@@ -13,16 +13,10 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import es.uned.master.software.tfm.adtm.amqp.receiver.ReceiverConsumer;
-import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
-
 @Component
 public class AmpqUtil {
 	
 	private static final Logger log = LoggerFactory.getLogger(AmpqUtil.class);
-	
-	private List<String> requestQueueNames = new ArrayList<>();
-	private List<String> responseQueueNames = new ArrayList<>();
 	
 	@Autowired
 	private ConnectionFactory connectionFactory;
@@ -30,32 +24,21 @@ public class AmpqUtil {
 	@Autowired
 	private RabbitAdmin rabbitAdmin;
 	
-	@Autowired
-	private SenderConsumer senderConsumer;
+	private List<String> queuesCreated = new ArrayList<>();
 	
-	public void createRabbitListenerForSender(String responseQueueName){
-		if (!responseQueueNames.contains(responseQueueName)){
-			createRabbitListener(responseQueueName, senderConsumer);
+	public void createRabbitListener(String queueName, Object consumer){
+		log.info("No se ha creado un listener para la cola {} donde se espera recibir la respuesta", queueName);
+		if (!queuesCreated.contains(queueName)){
+			log.info("Creamos la cola {}", queueName);
+			Queue queue = new Queue(queueName, false, false, false);
+			rabbitAdmin.declareQueue(queue);
 		}
-	}
-	
-	public void createRabbitListenerForReceiver(String responseQueueName, ReceiverConsumer receiverConsumer){
-		if (!requestQueueNames.contains(responseQueueName)){
-			createRabbitListener(responseQueueName, receiverConsumer);
-		}
-	}
-	
-	private void createRabbitListener(String responseQueueName, Object consumer){
-		log.info("No se ha creado un listener para la cola {} donde se espera recibir la respuesta", responseQueueName);
-		log.info("Creamos la cola {}", responseQueueName);
-		Queue queue = new Queue(responseQueueName, false, false, false);
-		rabbitAdmin.declareQueue(queue);
 		log.info("Procedemos a crear el listener para la cola {} recien creada");
 		MessageListenerAdapter adapter = new MessageListenerAdapter(consumer);
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
 		container.setMessageListener(adapter);
-		container.setQueueNames(responseQueueName);
-		log.info("Arrancamos el listener para la cola {}", responseQueueName);
+		container.setQueueNames(queueName);
+		log.info("Arrancamos el listener para la cola {}", queueName);
 		container.start();
 	}
 

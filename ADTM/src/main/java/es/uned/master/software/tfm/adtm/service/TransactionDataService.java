@@ -12,13 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.uned.master.software.tfm.adtm.amqp.Producer;
 import es.uned.master.software.tfm.adtm.amqp.receiver.ReceiverConsumer;
+import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.amqp.util.AmpqUtil;
+import es.uned.master.software.tfm.adtm.entity.Transaction;
 import es.uned.master.software.tfm.adtm.entity.TransactionElement;
-import es.uned.master.software.tfm.adtm.entity.TransactionExecutorStore;
 import es.uned.master.software.tfm.adtm.entity.TransactionStatus;
 import es.uned.master.software.tfm.adtm.exception.SendingException;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.jpa.repository.TransactionDataRepository;
+import es.uned.master.software.tfm.adtm.repository.SenderConsumerRepository;
 import es.uned.master.software.tfm.adtm.task.ResponseCheckerTask;
 
 @Service
@@ -40,21 +42,29 @@ public class TransactionDataService {
 	private AmpqUtil ampqUtil;
 	
 	@Autowired
-	private TransactionExecutorStore executorMap;
+	private SenderConsumerRepository senderConsumerRepository;
 	
 	public TransactionData transactionResponseNotReceived(TransactionData transactionData){
 		log.info("Indicamos que la transacción {} no ha recibido respuesta", transactionData.getTransactionDataId());
-		transactionData.setStatus(TransactionStatus.NO_RECEIVED.toString());
+		transactionData.setStatus(TransactionStatus.NOT_RECEIVED.toString());
 		transactionData.setResponseCheckedDate(new Date());
+		log.info("Ejecutamos el rollback definido en la transaccion");
+		if (senderConsumerRepository.containsKey(transactionData.getTransactionDataId())){
+			log.info("Ejecutamos el rollback asociado a la transacción");
+			senderConsumerRepository.get(transactionData.getTransactionDataId()).rollback(transactionData.getObjectTransmited());
+		}
 		return transactionDataRepository.save(transactionData);
 	}
 	
-	public TransactionData startTransaction(TransactionData transactionData){
+	public TransactionData startTransaction(Transaction transaction){
+		TransactionData transactionData = new TransactionData(transaction);
 		log.info("Se empieza una nueva transacción");
 		transactionData.setStartDate(new Date());
+		log.info("Se guarda para ser enviado de acuerdo con el proceso de envio de transacciones establecido periodicamente");
 		transactionData.setStatus(TransactionStatus.TO_BE_SENT.toString());
 		TransactionData transactionDataSaved = transactionDataRepository.save(transactionData);
-		executorMap.put(transactionDataSaved.getTransactionDataId(), transactionData.getExecutor());
+		log.info("Asociamos para la transaccion recien creada {} el listener de la cola donde espera recibir la respuesta", transactionDataSaved.getTransactionDataId());
+		senderConsumerRepository.put(transactionData.getTransactionDataId(), transactionData.getSenderConsumer());
 		return transactionDataSaved;
 	}
 	
@@ -65,11 +75,7 @@ public class TransactionDataService {
 	
 	public TransactionData getTransactionDataById(Long transactionId){
 		log.info("Recuperamos los datos asociados a la transacción, incluyendo el Executor");
-		TransactionData transactionData = transactionDataRepository.findOne(transactionId);
-		if (executorMap.containsKey(transactionData.getTransactionDataId())){
-			transactionData.setExecutor(executorMap.get(transactionData.getTransactionDataId()));
-		}
-		return transactionData;
+		return transactionDataRepository.findOne(transactionId);
 	}
 	
 	public void sendTransaction(TransactionData transactionData) throws SendingException{
@@ -91,8 +97,11 @@ public class TransactionDataService {
 						transactionData.getTransactionDataId(), transactionData.getMaxResponseTime());
 				taskScheduler.execute(checkerTask, transactionData.getMaxResponseTime());
 			}
+			log.info("Recuperamos el consumidor de la respuesta para la transaccion {}", transactionData.getTransactionDataId());
+			SenderConsumer senderConsumer = senderConsumerRepository.get(transactionData.getTransactionDataId());
 			String responseQueueName = transactionData.getResponseQueueName();
-			ampqUtil.createRabbitListenerForSender(responseQueueName);		
+			log.info("Creamos el listener (y la cola si fuese necesario) de la cola {} donde la transaccion {} espera recibir la respuesta", responseQueueName, transactionData.getTransactionDataId());
+			ampqUtil.createRabbitListener(responseQueueName, senderConsumer);		
 		} catch (Exception ex){
 			log.error("Ha habido un error en el envio de la transacción {} a su cola de envio {}:", transactionData.getTransactionDataId(), 
 					transactionData.getRequestQueueName(), ex);
@@ -109,7 +118,7 @@ public class TransactionDataService {
 	public void receiveTransactionReponse(String responseQueueName, ReceiverConsumer receiverConsumer){
 		try {
 			log.info("Se procede a crear el listener correspondiente para la cola {} donde se espera recibir una transaccion", responseQueueName);
-			ampqUtil.createRabbitListenerForReceiver(responseQueueName, receiverConsumer);
+			ampqUtil.createRabbitListener(responseQueueName, receiverConsumer);
 		} catch (Exception ex){
 			log.error("Error al crear el listener para la cola {} donde se espera recibir la respuesta de una transaccion", responseQueueName);
 		}

@@ -4,17 +4,17 @@ import java.io.Serializable;
 
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 
-public class TransactionElement implements Serializable {
+public class TransactionElement<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = 2432265495175652943L;
 	
 	private Long transactionReference;
 	private String additionalInfo;
-	private Object objectTransmited;
+	private T objectTransmited;
 	private TransactionStatus status;
 	private String responseQueueName;
 	
-	private TransactionElement() {
+	public TransactionElement() {
 		super();
 	}
 	
@@ -22,12 +22,12 @@ public class TransactionElement implements Serializable {
 		super();
 		this.transactionReference = transactionData.getTransactionDataId();
 		this.additionalInfo = transactionData.getAdditionalInfo();
-		this.objectTransmited = transactionData.getObjectTransmited();
+		this.objectTransmited = (T)transactionData.getObjectTransmited();
 		this.status = TransactionStatus.valueOf(transactionData.getStatus());
-		this.setResponseQueueName(transactionData.getResponseQueueName());
+		this.responseQueueName = transactionData.getResponseQueueName();
 	}
 
-	public TransactionElement(Long transactionReference, String additionalInfo, Object objectTransmited,
+	public TransactionElement(Long transactionReference, String additionalInfo, T objectTransmited,
 			TransactionStatus status) {
 		super();
 		this.transactionReference = transactionReference;
@@ -52,11 +52,11 @@ public class TransactionElement implements Serializable {
 		this.additionalInfo = additionalInfo;
 	}
 	
-	public Object getObjectTransmited() {
+	public T getObjectTransmited() {
 		return objectTransmited;
 	}
 	
-	public void setObjectTransmited(Object objectTransmited) {
+	public void setObjectTransmited(T objectTransmited) {
 		this.objectTransmited = objectTransmited;
 	}
 

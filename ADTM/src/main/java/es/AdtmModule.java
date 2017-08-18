@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import es.uned.master.software.tfm.adtm.entity.TransactionExecutorStore;
 import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
+import es.uned.master.software.tfm.adtm.repository.SenderConsumerRepository;
 
 @Configuration
 @EnableAsync
@@ -46,9 +46,8 @@ public class AdtmModule {
 	}
 	
 	@Bean
-	public TransactionExecutorStore buildTransactionExecutorMap(){
-		return new TransactionExecutorStore();
+	public SenderConsumerRepository buildSenderConsumerRepository(){
+		return new SenderConsumerRepository();
 	}
-	
 	
 }

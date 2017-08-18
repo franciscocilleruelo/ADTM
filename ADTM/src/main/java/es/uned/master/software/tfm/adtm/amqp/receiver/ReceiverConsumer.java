@@ -1,29 +1,37 @@
 package es.uned.master.software.tfm.adtm.amqp.receiver;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.uned.master.software.tfm.adtm.entity.TransactionElement;
 import es.uned.master.software.tfm.adtm.entity.TransactionStatus;
 
-public abstract class ReceiverConsumer<T> {
+public abstract class ReceiverConsumer<T extends Serializable> implements Serializable{
+
+	private static final long serialVersionUID = 7278191552064450096L;
 
 	private static final Logger log = LoggerFactory.getLogger(ReceiverConsumer.class);
 	
 	private RabbitTemplate rabbitTemplate;
+	private Class<T> classType;
 	
-	public ReceiverConsumer(RabbitTemplate rabbitTemplate){
+	public ReceiverConsumer(RabbitTemplate rabbitTemplate, Class<T> classType){
 		this.rabbitTemplate = rabbitTemplate;
+		this.classType = classType;
 	}
 	
 	public void handleMessage(String message){
 		log.info("Recibido mensaje {}", message);
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			TransactionElement transaction = mapper.readValue(message, TransactionElement.class);
+			JavaType javaType = mapper.getTypeFactory().constructParametricType(TransactionElement.class, classType);
+			TransactionElement<T> transaction = mapper.readValue(message, javaType);
 			try {
 				boolean resultado = processRequest((T)transaction.getObjectTransmited());
 				if (resultado){

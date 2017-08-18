@@ -2,18 +2,17 @@ package es.uned.master.software.tfm.adtm.entity;
 
 import java.io.Serializable;
 
-import org.springframework.util.SerializationUtils;
-
+import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 
-public class Transaction<T> implements Serializable {
+public class Transaction<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = 6768349709404274424L;
 	
 	private Long transactionReference;
 	private String additionalInfo;
 	private T objectTransmited;
-	private TransactionExecutor executor;
+	private SenderConsumer<T> senderConsumer;
 	private String requestQueueName;
 	private String responseQueueName;
 	private int maxResponseTime;
@@ -29,15 +28,15 @@ public class Transaction<T> implements Serializable {
 		this.additionalInfo = transactionData.getAdditionalInfo();
 		this.requestQueueName = transactionData.getRequestQueueName();
 		this.responseQueueName = transactionData.getResponseQueueName();
-		this.objectTransmited = (T)SerializationUtils.deserialize(transactionData.getObjectTransmited());
+		this.objectTransmited = (T)transactionData.getObjectTransmited();
 		this.status = TransactionStatus.valueOf(transactionData.getStatus());
 	}
 
-	public Transaction(T objectTransmited, TransactionExecutor executor, String requestQueueName, String responseQueueName,
+	public Transaction(T objectTransmited, SenderConsumer<T> senderConsumer, String requestQueueName, String responseQueueName,
 			int maxResponseTime) {
 		super();
 		this.objectTransmited = objectTransmited;
-		this.executor = executor;
+		this.senderConsumer = senderConsumer;
 		this.requestQueueName = requestQueueName;
 		this.responseQueueName = responseQueueName;
 		this.maxResponseTime = maxResponseTime;
@@ -67,12 +66,12 @@ public class Transaction<T> implements Serializable {
 		this.objectTransmited = objectTransmited;
 	}
 
-	public TransactionExecutor getExecutor() {
-		return executor;
+	public SenderConsumer<T> getSenderConsumer() {
+		return senderConsumer;
 	}
 
-	public void setExecutor(TransactionExecutor executor) {
-		this.executor = executor;
+	public void setSenderConsumer(SenderConsumer<T> senderConsumer) {
+		this.senderConsumer = senderConsumer;
 	}
 
 	public String getRequestQueueName() {
