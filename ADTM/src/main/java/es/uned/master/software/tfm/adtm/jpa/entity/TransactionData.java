@@ -9,11 +9,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
-import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.entity.Transaction;
 
+/**
+ * Objeto perisistido en BD que representa la transaccion
+ * 
+ * @author Francisco Cilleruelo
+ */
 @Entity
 @Table(name = "TRANSACTIONS_DATA")
 public class TransactionData implements Serializable{
@@ -23,20 +26,55 @@ public class TransactionData implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long transactionDataId;
+	/**
+	 * Objeto de negocio transmitido en la transaccion
+	 */
 	@Lob
 	private Serializable objectTransmited;	
+	/**
+	 * Fecha de comienzo de la transaccion
+	 * Cuando el emisor la comienza, no cuando se envia a la cola del receptor de la transaccion
+	 */
 	private Date startDate;
+	/**
+	 * Fecha de envio a la cola del receptor de la transaccion
+	 */
 	private Date sentDate;
+	/**
+	 * Fecha en la que el emisor se recibe la respuesta por parte del receptor
+	 */
 	private Date receivedDate;
+	/**
+	 * Fecha en la que se comprueba si se ha recibido una respuesta por parte del receptor
+	 * de acuerdo con el valor establecido en la propiedad maxResponseTime
+	 */
 	private Date responseCheckedDate;
+	/**
+	 * Estado de la transacción (TO_BE_SENT, SENT, RECEIVED_OK, RECEIVED_NOK, NOT_RECEIVED)
+	 */
 	private String status;
+	/**
+	 * Informacion adicional
+	 */
 	private String additionalInfo;
+	/**
+	 * Nombre de la cola donde el emisor envia la transaccion
+	 */
 	private String requestQueueName;
+	/**
+	 * Nombre de la cola donde se espera recibir la respuesta del receptor de la transaccion
+	 */
 	private String responseQueueName;
+	/**
+	 * Numero de intentos de envio
+	 */
 	private int sentTries;
+	/**
+	 * Tiempo maximo de respuesta permitido
+	 * Superado este tiempo si no se ha recibido respuesta, la transaccion se dara por invalida
+	 * Un valor menor o igual que cero indicara que no hay limite para recibir la respuesta 
+	 */
 	private int maxResponseTime;
-	@Transient
-	private SenderConsumer senderConsumer;
 	
 	public TransactionData() {
 		super();
@@ -44,9 +82,7 @@ public class TransactionData implements Serializable{
 	
 	public TransactionData(Transaction transaction) {
 		super();
-		this.additionalInfo = transaction.getAdditionalInfo();
 		this.objectTransmited = transaction.getObjectTransmited();
-		this.senderConsumer = transaction.getSenderConsumer();
 		this.requestQueueName = transaction.getRequestQueueName();
 		this.responseQueueName = transaction.getResponseQueueName();
 		this.maxResponseTime = transaction.getMaxResponseTime();
@@ -146,14 +182,6 @@ public class TransactionData implements Serializable{
 
 	public void setMaxResponseTime(int maxResponseTime) {
 		this.maxResponseTime = maxResponseTime;
-	}
-
-	public SenderConsumer getSenderConsumer() {
-		return senderConsumer;
-	}
-
-	public void setSenderConsumer(SenderConsumer senderConsumer) {
-		this.senderConsumer = senderConsumer;
 	}
 	
 }

@@ -5,18 +5,39 @@ import java.io.Serializable;
 import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 
+/**
+ * Objeto que representa la transaccion para el emisor que desencadena la comunicacion
+ * 
+ * @author Francisco Cilleruelo
+ *
+ * @param <T> Tipo de objeto de negocio (serializable) enviado como parte de la transaccion
+ */
 public class Transaction<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = 6768349709404274424L;
 	
-	private Long transactionReference;
-	private String additionalInfo;
+	/**
+	 * Objeto enviado como parte de la transaccion
+	 */
 	private T objectTransmited;
+	/**
+	 * Componente encarga de recibir y procesar la respuesta recibida del receptor de la transaccion
+	 */
 	private SenderConsumer<T> senderConsumer;
+	/**
+	 * Nombre de la cola donde se enviara la transaccion
+	 */
 	private String requestQueueName;
+	/**
+	 * Nombre de la cola donde se espera recibir la respuesta del receptor de la transaccion
+	 */
 	private String responseQueueName;
+	/**
+	 * Tiempo maximo de respuesta permitido
+	 * Superado este tiempo si no se ha recibido respuesta, la transaccion se dara por invalida
+	 * Un valor menor o igual que cero indicara que no hay limite para recibir la respuesta
+	 */
 	private int maxResponseTime;
-	private TransactionStatus status;
 	
 	private Transaction() {
 		super();
@@ -24,12 +45,9 @@ public class Transaction<T extends Serializable> implements Serializable {
 	
 	public Transaction(TransactionData transactionData) {
 		super();
-		this.transactionReference = transactionData.getTransactionDataId();
-		this.additionalInfo = transactionData.getAdditionalInfo();
 		this.requestQueueName = transactionData.getRequestQueueName();
 		this.responseQueueName = transactionData.getResponseQueueName();
 		this.objectTransmited = (T)transactionData.getObjectTransmited();
-		this.status = TransactionStatus.valueOf(transactionData.getStatus());
 	}
 
 	public Transaction(T objectTransmited, SenderConsumer<T> senderConsumer, String requestQueueName, String responseQueueName,
@@ -40,22 +58,6 @@ public class Transaction<T extends Serializable> implements Serializable {
 		this.requestQueueName = requestQueueName;
 		this.responseQueueName = responseQueueName;
 		this.maxResponseTime = maxResponseTime;
-	}
-
-	public Long getTransactionReference() {
-		return transactionReference;
-	}
-
-	public void setTransactionReference(Long transactionReference) {
-		this.transactionReference = transactionReference;
-	}
-
-	public String getAdditionalInfo() {
-		return additionalInfo;
-	}
-
-	public void setAdditionalInfo(String additionalInfo) {
-		this.additionalInfo = additionalInfo;
 	}
 
 	public T getObjectTransmited() {
@@ -96,14 +98,6 @@ public class Transaction<T extends Serializable> implements Serializable {
 
 	public void setMaxResponseTime(int maxResponseTime) {
 		this.maxResponseTime = maxResponseTime;
-	}
-
-	public TransactionStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(TransactionStatus status) {
-		this.status = status;
 	}
 
 }

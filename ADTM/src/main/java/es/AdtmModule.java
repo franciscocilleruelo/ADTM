@@ -1,6 +1,9 @@
 package es;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +16,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
-import es.uned.master.software.tfm.adtm.repository.SenderConsumerRepository;
 
 @Configuration
 @EnableAsync
@@ -46,8 +49,8 @@ public class AdtmModule {
 	}
 	
 	@Bean
-	public SenderConsumerRepository buildSenderConsumerRepository(){
-		return new SenderConsumerRepository();
+	public Map<Long, SenderConsumer> buildSenderConsumerRepository(){
+		return new HashMap<>();
 	}
 	
 }

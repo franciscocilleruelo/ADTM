@@ -4,14 +4,36 @@ import java.io.Serializable;
 
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 
+/**
+ * Objeto compartido entre emisor y receptor como elemento transmitido en la transaccion
+ * 
+ * @author Francisco Cilleruelo
+ *
+ * @param <T> Tipo de objeto de negocio (serializable) enviado como parte de la transaccion
+ */
 public class TransactionElement<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = 2432265495175652943L;
 	
+	/**
+	 * Identificador unico de la transaccion
+	 */
 	private Long transactionReference;
+	/**
+	 * Informacion adicional por parte del emisor o del receptor hacia la otra parte
+	 */
 	private String additionalInfo;
+	/**
+	 * Objeto de negocio transmitido
+	 */
 	private T objectTransmited;
+	/**
+	 * Estado de la transaccion (TO_BE_SENT, SENT, RECEIVED_OK, RECEIVED_NOK, NOT_RECEIVED) 
+	 */
 	private TransactionStatus status;
+	/**
+	 * Nombre de la cola donde el emisor espera recibir la respuesta del receptor
+	 */
 	private String responseQueueName;
 	
 	public TransactionElement() {

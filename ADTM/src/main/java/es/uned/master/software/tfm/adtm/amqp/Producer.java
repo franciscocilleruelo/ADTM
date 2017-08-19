@@ -11,6 +11,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.uned.master.software.tfm.adtm.entity.TransactionElement;
 
+/**
+ * Componente para enviar a una cola determinada una transaccion 
+ * 
+ * @author Francisco Cilleruelo
+ */
 @Component
 public class Producer {
 	
@@ -19,9 +24,15 @@ public class Producer {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 	
-	public void sendTo(String routingKey, TransactionElement transaction){
-		ObjectMapper mapper = new ObjectMapper();
+	/**
+	 * Envia la transaccion a la cola indicada
+	 * 
+	 * @param routingKey La cola destino a la que sera enviada la transaccion
+	 * @param transaction Transaccion a enviar
+	 */
+	public void sendTo(String routingKey, TransactionElement<?> transaction){
 		try {
+			ObjectMapper mapper = new ObjectMapper();
 			String message = mapper.writeValueAsString(transaction);
 			this.rabbitTemplate.convertAndSend(routingKey, message);
 			log.info("Mensaje {} enviado satisfactoriamente a la cola {}", message, routingKey);

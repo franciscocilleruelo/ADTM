@@ -6,6 +6,12 @@ import org.slf4j.LoggerFactory;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.service.TransactionDataService;
 
+/**
+ * Tarea ejecutada como un thread independiente para comprobar si se ha recibido respuesta
+ * para una transaccion determinada pasado el limite maximo establecido por esta
+ * 
+ * @author Francisco Cilleruelo
+ */
 public class ResponseCheckingTask implements Runnable {
 	
 	private static final Logger log = LoggerFactory.getLogger(ResponseCheckingTask.class);
