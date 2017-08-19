@@ -6,14 +6,14 @@ import org.slf4j.LoggerFactory;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.service.TransactionDataService;
 
-public class ResponseCheckerTask implements Runnable {
+public class ResponseCheckingTask implements Runnable {
 	
-	private static final Logger log = LoggerFactory.getLogger(ResponseCheckerTask.class);
+	private static final Logger log = LoggerFactory.getLogger(ResponseCheckingTask.class);
 	
 	private TransactionDataService transactionDataService;
 	private TransactionData transactionData;
 
-	public ResponseCheckerTask(TransactionDataService transactionDataService, TransactionData transactionData) {
+	public ResponseCheckingTask(TransactionDataService transactionDataService, TransactionData transactionData) {
 		super();
 		this.transactionDataService = transactionDataService;
 		this.transactionData = transactionData;

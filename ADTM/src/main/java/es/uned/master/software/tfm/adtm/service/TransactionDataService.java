@@ -21,7 +21,7 @@ import es.uned.master.software.tfm.adtm.exception.SendingException;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
 import es.uned.master.software.tfm.adtm.jpa.repository.TransactionDataRepository;
 import es.uned.master.software.tfm.adtm.repository.SenderConsumerRepository;
-import es.uned.master.software.tfm.adtm.task.ResponseCheckerTask;
+import es.uned.master.software.tfm.adtm.task.ResponseCheckingTask;
 
 @Service
 @Transactional
@@ -92,7 +92,7 @@ public class TransactionDataService {
 			transactionDataRepository.save(transactionData);
 			if (transactionData.getMaxResponseTime()>0){ // Se ha establecido un tiempo máximo para recibir la respuesta
 				log.info("Se ha establecido un tiempo maximo de respuesta de {} msg", transactionData.getMaxResponseTime());
-				ResponseCheckerTask checkerTask = new ResponseCheckerTask(this, transactionData);
+				ResponseCheckingTask checkerTask = new ResponseCheckingTask(this, transactionData);
 				log.info("Lanzamos el hilo de ejecución para comprobar si se ha recibido la respuesta para la transaccion {} en un tiempo maximo de {} msg",
 						transactionData.getTransactionDataId(), transactionData.getMaxResponseTime());
 				taskScheduler.execute(checkerTask, transactionData.getMaxResponseTime());
