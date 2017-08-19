@@ -28,9 +28,9 @@ import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
 @Configuration
 @EnableAsync
 @EnableScheduling
-@ComponentScan(basePackages={"es"})
-@EnableJpaRepositories(basePackages={"es"})
-@EntityScan(basePackages={"es"})
+@ComponentScan
+@EnableJpaRepositories
+@EntityScan
 public class AdtmModule {
 
 	@Bean
@@ -54,6 +54,9 @@ public class AdtmModule {
 		return new DistributedTransactionManager();
 	}
 	
+	/**
+	 * @return Repositorio de listeners para los mensajes de respuesta recibidos de los receptores de las transacciones 
+	 */
 	@Bean
 	public Map<Long, SenderConsumer> buildSenderConsumerRepository(){
 		return new HashMap<>();
