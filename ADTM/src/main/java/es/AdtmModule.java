@@ -19,6 +19,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import es.uned.master.software.tfm.adtm.amqp.sender.SenderConsumer;
 import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
 
+/**
+ * Libreria de gestion de transacciones distribuidas asincronas
+ * Asynchronous Distributed Transactions Manager (ADTM)
+ * 
+ * @author Francisco Cilleruelo
+ */
 @Configuration
 @EnableAsync
 @EnableScheduling
