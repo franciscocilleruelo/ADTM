@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.uned.master.software.tfm.adtm.entity.TransactionElement;
 import es.uned.master.software.tfm.adtm.entity.TransactionStatus;
-import es.uned.master.software.tfm.adtm.service.TransactionDataService;
+import es.uned.master.software.tfm.adtm.service.DistributedTransactionService;
 
 /**
  * Componente para recibir por parte del remitente la respuesta del receptor
@@ -29,7 +29,7 @@ public abstract class SenderConsumer<T extends Serializable> implements Serializ
 	private Class<T> classType;
 	
 	@Autowired
-	private TransactionDataService transactionDataService;
+	private DistributedTransactionService distributedTransactionService;
 	
 	public SenderConsumer(Class<T> classType) {
 		super();
@@ -54,7 +54,7 @@ public abstract class SenderConsumer<T extends Serializable> implements Serializ
 				log.info("La transaccion no ha terminado correctamente, hacemos el rollback");
 				rollback((T)transaction.getObjectTransmited());
 			}
-			transactionDataService.transactionResponseReceived(transaction);
+			distributedTransactionService.transactionResponseReceived(transaction);
 		} catch (Exception ex){
 			log.error("Error en la recepción de la respuesta del destinatario por parte del emisor: ", ex);
 		}

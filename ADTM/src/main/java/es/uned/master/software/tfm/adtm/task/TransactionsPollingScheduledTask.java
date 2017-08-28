@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import es.uned.master.software.tfm.adtm.exception.SendingException;
 import es.uned.master.software.tfm.adtm.jpa.entity.TransactionData;
-import es.uned.master.software.tfm.adtm.service.TransactionDataService;
+import es.uned.master.software.tfm.adtm.service.DistributedTransactionService;
 
 /**
  * Tarea programada de manera periodica para enviar la transacciones que todavia estas pendientes de ser enviadas
@@ -23,7 +23,7 @@ public class TransactionsPollingScheduledTask {
 	private static final Logger log = LoggerFactory.getLogger(TransactionsPollingScheduledTask.class);
 	
 	@Autowired
-	private TransactionDataService transactionDataService;
+	private DistributedTransactionService distributedTransactionService;
 	
 	/**
 	 * Comprobacion y envio periodico de transacciones pendientes de ser enviadas
@@ -32,12 +32,12 @@ public class TransactionsPollingScheduledTask {
 	 */
 	@Scheduled(fixedDelayString="${adtm.pollingfrecuency:60000}")
 	public void run(){
-		List<TransactionData> transactionDataList = transactionDataService.getTransactionsToBeSent();
+		List<TransactionData> transactionDataList = distributedTransactionService.getTransactionsToBeSent();
 		if (transactionDataList!=null && !transactionDataList.isEmpty()){
 			for(TransactionData transactionData: transactionDataList){
 				try {
 					// Se envia la transacción
-					transactionDataService.sendTransaction(transactionData);
+					distributedTransactionService.sendTransaction(transactionData);
 				} catch (SendingException ex){
 					log.error("Error en el envio de la transacción {}", transactionData.getTransactionDataId());
 				}

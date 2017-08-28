@@ -31,9 +31,9 @@ import es.uned.master.software.tfm.adtm.task.ResponseCheckingTask;
  */
 @Service
 @Transactional
-public class TransactionDataService {
+public class DistributedTransactionService {
 	
-	private static final Logger log = LoggerFactory.getLogger(TransactionDataService.class);
+	private static final Logger log = LoggerFactory.getLogger(DistributedTransactionService.class);
 	
 	@Autowired
 	private TransactionDataRepository transactionDataRepository;
