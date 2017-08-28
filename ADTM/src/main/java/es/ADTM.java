@@ -31,7 +31,7 @@ import es.uned.master.software.tfm.adtm.manager.DistributedTransactionManager;
 @ComponentScan
 @EnableJpaRepositories
 @EntityScan
-public class AdtmModule {
+public class ADTM {
 
 	@Bean
 	public ThreadPoolTaskScheduler taskScheduler(){
