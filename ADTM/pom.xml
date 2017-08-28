@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>ADTM</name>
-	<description>Asynchronous Distrbuted Transaction Manager, Gestor de transacciones distribuidas asincronas</description>
+	<description>Asynchronous Distributed Transaction Manager, Gestor de transacciones distribuidas asincronas</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
