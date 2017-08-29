@@ -180,10 +180,20 @@ public class DistributedTransactionService {
 	public void receiveTransaction(String responseQueueName, ReceiverConsumer<?> receiverConsumer){
 		try {
 			log.info("Se procede a crear el listener correspondiente para la cola {} donde se espera recibir una transaccion", responseQueueName);
+			beanFactory.autowireBean(receiverConsumer);
 			ampqUtil.createRabbitListener(responseQueueName, receiverConsumer);
 		} catch (Exception ex){
 			log.error("Error al crear el listener para la cola {} donde se espera recibir la respuesta de una transaccion", responseQueueName);
 		}
+	}
+	
+	/**
+	 * Metodo invocado por el receptor para devolver al emisor la transaccion una vez que la ha recibido y procesado
+	 * 
+	 * @param transaction Elemento transmitido entre emisor y receptor y que representa la transaccion
+	 */
+	public void sendResponse(TransactionElement<?> transaction){
+		producer.sendTo(transaction.getResponseQueueName(), transaction);
 	}
 
 }
