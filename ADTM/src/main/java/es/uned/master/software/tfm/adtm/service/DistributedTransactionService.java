@@ -174,16 +174,16 @@ public class DistributedTransactionService {
 	/**
 	 * Metodo invocado para recibir una transaccion por parte del receptor
 	 * 
-	 * @param responseQueueName Nombre de la cola donde el receptor espera recibir la transaccion
+	 * @param requestQueueName Nombre de la cola donde el receptor espera recibir la transaccion
 	 * @param receiverConsumer Componente encargado de recibir y procesar la transaccion
 	 */
-	public void receiveTransaction(String responseQueueName, ReceiverConsumer<?> receiverConsumer){
+	public void receiveTransaction(String requestQueueName, ReceiverConsumer<?> receiverConsumer){
 		try {
-			log.info("Se procede a crear el listener correspondiente para la cola {} donde se espera recibir una transaccion", responseQueueName);
+			log.info("Se procede a crear el listener correspondiente para la cola {} donde se espera recibir una transaccion", requestQueueName);
 			beanFactory.autowireBean(receiverConsumer);
-			ampqUtil.createRabbitListener(responseQueueName, receiverConsumer);
+			ampqUtil.createRabbitListener(requestQueueName, receiverConsumer);
 		} catch (Exception ex){
-			log.error("Error al crear el listener para la cola {} donde se espera recibir la respuesta de una transaccion", responseQueueName);
+			log.error("Error al crear el listener para la cola {} donde se espera recibir la respuesta de una transaccion", requestQueueName);
 		}
 	}
 	
