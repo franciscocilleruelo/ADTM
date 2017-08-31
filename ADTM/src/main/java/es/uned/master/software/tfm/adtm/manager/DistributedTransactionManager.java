@@ -33,7 +33,7 @@ public class DistributedTransactionManager {
 	 * @param requestQueueName Nombre de la cola donde se espera recibir la transaccion enviada por el emisor
 	 * @param receiverConsumer Componente encargado de recibir y procesar la transaccion recibida
 	 */
-	public void recieveTransaction(String requestQueueName, ReceiverConsumer<?> receiverConsumer){
+	public void receiveTransaction(String requestQueueName, ReceiverConsumer<?> receiverConsumer){
 		distributedTransactionService.receiveTransaction(requestQueueName, receiverConsumer);
 	}
 
